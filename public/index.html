@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Hi there</h1>
+    <div>
+      Best
+      <ul class="betsView"></ul>
+    </div>
+    <script>
+      const $betsView = document.querySelector(".betsView");
+      const bets = [];
+      let maxId = 0;
+
+      async function loadBets() {
+        try {
+          const controller = new AbortController();
+
+          setTimeout(() => {
+            controller.abort();
+          }, 10000);
+
+          const response = await fetch(`/api/bets?from=${maxId}`, {
+            signal: controller.signal,
+          });
+          const bets = await response.json();
+          bets.forEach(proccessBet);
+          loadBets();
+        } catch (e) {
+          //if reason is client timeout
+          loadBets();
+        }
+      }
+
+      function proccessBet(bet) {
+        const li = document.createElement("li");
+        li.innerHTML = JSON.stringify(bet);
+        $betsView.appendChild(li);
+        maxId = bet.id;
+      }
+
+      loadBets();
+    </script>
+  </body>
+</html>
